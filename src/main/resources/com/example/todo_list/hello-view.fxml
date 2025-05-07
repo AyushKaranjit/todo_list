@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.todo_list.HelloController">
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+
+<VBox alignment="TOP_CENTER" spacing="10.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea" fx:controller="com.example.todo_list.HelloController">
   <padding>
     <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
   </padding>
 
-  <Label fx:id="welcomeText"/>
-  <Button text="Hello!" onAction="#onHelloButtonClick"/>
+  <Label text="My To-Do List" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+
+  <HBox spacing="10.0" alignment="CENTER_LEFT">
+    <TextField fx:id="taskInput" HBox.hgrow="ALWAYS" promptText="Enter new task..."/>
+    <Button fx:id="addTaskButton" text="Add Task" onAction="#handleAddTask"/>
+  </HBox>
+
+  <ListView fx:id="taskListView" VBox.vgrow="ALWAYS"/>
+
+  <HBox spacing="10.0" alignment="CENTER_LEFT">
+    <Label text="Set Reminder:"/>
+    <DatePicker fx:id="reminderDatePicker" promptText="Select date"/>
+    <Button fx:id="setReminderButton" text="Set Reminder" onAction="#handleSetReminder" disable="true"/>
+  </HBox>
+
+  <HBox spacing="10.0" alignment="CENTER">
+    <Button fx:id="markCompleteButton" text="Mark as Complete" onAction="#handleMarkComplete" disable="true"/>
+    <Button fx:id="deleteTaskButton" text="Delete Task" onAction="#handleDeleteTask" disable="true"/>
+  </HBox>
+
 </VBox>
