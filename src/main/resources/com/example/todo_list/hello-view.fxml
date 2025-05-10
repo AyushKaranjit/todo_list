@@ -47,7 +47,7 @@
     <!-- Action Buttons -->
     <HBox spacing="15" alignment="CENTER_RIGHT">
         <Label text="Set Reminder:" minWidth="-Infinity" styleClass="label"/>
-        <DatePicker fx:id="reminderDatePicker" prefWidth="150" />
+        <DatePicker fx:id="reminderDatePicker" prefWidth="150" promptText="Enter Date" />
         <Button fx:id="setReminderButton" text="Set Reminder" onAction="#handleSetReminder" disable="true" />
         <Button fx:id="updateTaskButton" text="Update Task" onAction="#handleUpdateTask" disable="true" />
         <Button fx:id="markCompleteButton" text="Mark as Complete" onAction="#handleMarkComplete" disable="true" />
