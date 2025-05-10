@@ -10,7 +10,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 
+// Main application class for the To-Do List.
 public class HelloApplication extends Application {
+    // Starts the JavaFX application, setting up the primary stage and scene.
     @Override
     public void start(Stage stage) {
         try {
@@ -34,6 +36,7 @@ public class HelloApplication extends Application {
         }
     }
 
+    // Main method to launch the application.
     public static void main(String[] args) {
         launch();
     }

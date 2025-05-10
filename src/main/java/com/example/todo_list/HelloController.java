@@ -24,27 +24,29 @@ import com.example.todo_list.util.AlertUtil;
 import com.example.todo_list.util.DateTimeUtil;
 import com.example.todo_list.exception.InvalidTaskInputException;
 
+// Controller class for the main view of the To-Do List application.
 public class HelloController {
 
+    // FXML UI Elements
     @FXML
-    private TextField taskInput; 
+    private TextField taskInput;
     @FXML
-    private ComboBox<String> taskTypeComboBox; 
+    private ComboBox<String> taskTypeComboBox;
     @FXML
-    private Label detailsLabel; 
+    private Label detailsLabel;
     @FXML
-    private TextField detailsInput; 
+    private TextField detailsInput;
     @FXML
-    private Label dueTimeLabel; 
+    private Label dueTimeLabel;
     @FXML
-    private TextField dueTimeInput; 
+    private TextField dueTimeInput;
     @FXML
-    private DatePicker reminderDatePicker; 
+    private DatePicker reminderDatePicker;
 
     @FXML
     private Button addTaskButton;
     @FXML
-    private ListView<Task> taskListView; 
+    private ListView<Task> taskListView;
     @FXML
     private Button setReminderButton;
     @FXML
@@ -54,7 +56,7 @@ public class HelloController {
     @FXML
     private Button updateTaskButton;
     @FXML
-    private TextField searchField; 
+    private TextField searchField;
 
     @FXML
     private Label totalTasksLabel;
@@ -63,17 +65,22 @@ public class HelloController {
     @FXML
     private Label pendingTasksLabel;
 
+    // Task list data
     private ObservableList<Task> masterTasksList;
     private FilteredList<Task> filteredTasksList;
 
+    // Constants for task types
     private static final String SIMPLE_TASK = "Simple";
     private static final String DETAILED_TASK = "Detailed";
     private static final String DEADLINE_TASK = "Deadline";
 
+    // Constants for CSS style classes
     private static final String STYLE_CLASS_TASK_COMPLETED = "task-completed";
-    private static final String STYLE_CLASS_TASK_DUE = "task-due"; 
-    private static final String STYLE_CLASS_TASK_OVERDUE = "task-overdue"; 
+    private static final String STYLE_CLASS_TASK_DUE = "task-due";
+    private static final String STYLE_CLASS_TASK_OVERDUE = "task-overdue";
 
+    // Initializes the controller class. This method is automatically called
+    // after the fxml file has been loaded.
     @FXML
     public void initialize() {
         masterTasksList = FXCollections.observableArrayList();
@@ -84,11 +91,13 @@ public class HelloController {
         taskTypeComboBox.setItems(FXCollections.observableArrayList(SIMPLE_TASK, DETAILED_TASK, DEADLINE_TASK));
         taskTypeComboBox.setValue(SIMPLE_TASK);
 
+        // Listener to update UI fields based on selected task type.
         taskTypeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             updateTaskSpecificFieldVisibility(newVal);
         });
         updateTaskSpecificFieldVisibility(SIMPLE_TASK);
 
+        // Listener to filter tasks based on text entered in the search field.
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredTasksList.setPredicate(task -> {
                 if (newValue == null || newValue.isEmpty()) {
@@ -109,6 +118,8 @@ public class HelloController {
             });
         });
 
+        // Sets a custom cell factory for the task ListView to control how tasks are displayed.
+        // This includes applying different styles based on task status (completed, due, overdue).
         taskListView.setCellFactory(param -> new ListCell<Task>() {
             @Override
             protected void updateItem(Task task, boolean empty) {
@@ -135,6 +146,7 @@ public class HelloController {
             }
         });
 
+        // Listener to update input fields and button states when a task is selected in the ListView.
         taskListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             boolean taskSelected = newValue != null;
             setReminderButton.setDisable(!taskSelected);
@@ -166,14 +178,16 @@ public class HelloController {
             updateTaskSpecificFieldVisibility(taskTypeComboBox.getValue());
         });
 
+        // Listener to update task statistics when the master list of tasks changes.
         masterTasksList.addListener((ListChangeListener<Task>) c -> {
             updateTaskStatistics();
         });
 
-
         updateTaskStatistics(); 
     }
 
+    // Updates the visibility of task-specific input fields (details, due time)
+    // based on the selected task type.
     private void updateTaskSpecificFieldVisibility(String taskType) {
         boolean isDetailed = DETAILED_TASK.equals(taskType);
         boolean isDeadline = DEADLINE_TASK.equals(taskType);
@@ -189,6 +203,7 @@ public class HelloController {
         dueTimeInput.setManaged(isDeadline);
     }
 
+    // Updates the labels displaying task statistics (total, completed, pending).
     private void updateTaskStatistics() {
         long total = masterTasksList.size();
         long completed = masterTasksList.stream().filter(Task::isCompleted).count();
@@ -199,6 +214,7 @@ public class HelloController {
         pendingTasksLabel.setText("Pending: " + pending);
     }
 
+    // Handles the action of adding a new task.
     @FXML
     protected void handleAddTask() {
         String description = taskInput.getText().trim();
@@ -280,6 +296,7 @@ public class HelloController {
         }
     }
 
+    // Clears all input fields and resets the task type ComboBox.
     private void clearInputFields() {
         taskInput.clear();
         detailsInput.clear();
@@ -289,6 +306,7 @@ public class HelloController {
         updateTaskSpecificFieldVisibility(SIMPLE_TASK);
     }
 
+    // Handles the action of setting or updating a reminder for the selected task.
     @FXML
     protected void handleSetReminder() {
         Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
@@ -314,6 +332,7 @@ public class HelloController {
         AlertUtil.showAlert("Reminder Set", "Reminder for \"" + selectedTask.getDescription() + "\" set to " + (reminderDate != null ? reminderDate.toString() : "cleared") + ".");
     }
 
+    // Handles the action of marking the selected task as complete.
     @FXML
     protected void handleMarkComplete() {
         Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
@@ -330,6 +349,7 @@ public class HelloController {
         }
     }
 
+    // Handles the action of deleting the selected task.
     @FXML
     protected void handleDeleteTask() {
         Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
@@ -342,6 +362,7 @@ public class HelloController {
         }
     }
 
+    // Handles the action of updating the selected task with new information from the input fields.
     @FXML
     protected void handleUpdateTask() {
         Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
@@ -448,6 +469,7 @@ public class HelloController {
         }
     }
     
+    // Refreshes the ListView to reflect any changes to the tasks.
     private void refreshListView() {
         taskListView.refresh();
     }
