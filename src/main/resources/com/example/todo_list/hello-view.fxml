@@ -49,7 +49,16 @@
         <Label text="Set Reminder:" minWidth="-Infinity" styleClass="label"/>
         <DatePicker fx:id="reminderDatePicker" prefWidth="150" />
         <Button fx:id="setReminderButton" text="Set Reminder" onAction="#handleSetReminder" disable="true" />
+        <Button fx:id="updateTaskButton" text="Update Task" onAction="#handleUpdateTask" disable="true" />
         <Button fx:id="markCompleteButton" text="Mark as Complete" onAction="#handleMarkComplete" disable="true" />
         <Button fx:id="deleteTaskButton" text="Delete Task" onAction="#handleDeleteTask" disable="true" />
     </HBox>
+
+    <!-- Statistics Bar -->
+    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="status-bar" style="-fx-padding: 10 0 0 0;">
+        <Label fx:id="totalTasksLabel" text="Total: 0" styleClass="label status-label"/>
+        <Label fx:id="completedTasksLabel" text="Completed: 0" styleClass="label status-label"/>
+        <Label fx:id="pendingTasksLabel" text="Pending: 0" styleClass="label status-label"/>
+    </HBox>
+
 </VBox>

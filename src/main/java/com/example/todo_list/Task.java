@@ -1,5 +1,6 @@
 package com.example.todo_list;
 
+import com.example.todo_list.exception.InvalidTaskInputException;
 import java.time.LocalDate;
 
 public abstract class Task {
@@ -31,6 +32,13 @@ public abstract class Task {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public void setDescription(String description) {
+        if (description == null || description.trim().isEmpty()) {
+            throw new InvalidTaskInputException("Description cannot be empty.");
+        }
+        this.description = description.trim();
     }
 
     public abstract String getType();

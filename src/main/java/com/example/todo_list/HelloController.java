@@ -13,53 +13,55 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListCell;
-// import javafx.util.Callback; // No longer explicitly needed for simple toString cell factory
+import javafx.collections.ListChangeListener;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
+import com.example.todo_list.util.NotificationUtil;
+import com.example.todo_list.util.AlertUtil;
+import com.example.todo_list.util.DateTimeUtil;
+import com.example.todo_list.exception.InvalidTaskInputException;
 
 public class HelloController {
 
     @FXML
-    private TextField taskInput; // Remains for description
-
+    private TextField taskInput; 
     @FXML
-    private ComboBox<String> taskTypeComboBox;
-
+    private ComboBox<String> taskTypeComboBox; 
     @FXML
-    private Label detailsLabel;
-
+    private Label detailsLabel; 
     @FXML
-    private TextField detailsInput;
-
+    private TextField detailsInput; 
     @FXML
-    private Label dueTimeLabel;
-
+    private Label dueTimeLabel; 
     @FXML
-    private TextField dueTimeInput;
+    private TextField dueTimeInput; 
+    @FXML
+    private DatePicker reminderDatePicker; 
 
     @FXML
     private Button addTaskButton;
-
     @FXML
-    private ListView<Task> taskListView;
-
-    @FXML
-    private DatePicker reminderDatePicker;
-
+    private ListView<Task> taskListView; 
     @FXML
     private Button setReminderButton;
-
     @FXML
     private Button markCompleteButton;
-
     @FXML
     private Button deleteTaskButton;
+    @FXML
+    private Button updateTaskButton;
+    @FXML
+    private TextField searchField; 
 
     @FXML
-    private TextField searchField;
+    private Label totalTasksLabel;
+    @FXML
+    private Label completedTasksLabel;
+    @FXML
+    private Label pendingTasksLabel;
 
     private ObservableList<Task> masterTasksList;
     private FilteredList<Task> filteredTasksList;
@@ -67,9 +69,10 @@ public class HelloController {
     private static final String SIMPLE_TASK = "Simple";
     private static final String DETAILED_TASK = "Detailed";
     private static final String DEADLINE_TASK = "Deadline";
+
     private static final String STYLE_CLASS_TASK_COMPLETED = "task-completed";
-    private static final String STYLE_CLASS_TASK_DUE = "task-due";
-    private static final String STYLE_CLASS_TASK_OVERDUE = "task-overdue";
+    private static final String STYLE_CLASS_TASK_DUE = "task-due"; 
+    private static final String STYLE_CLASS_TASK_OVERDUE = "task-overdue"; 
 
     @FXML
     public void initialize() {
@@ -79,33 +82,30 @@ public class HelloController {
         taskListView.setItems(filteredTasksList);
 
         taskTypeComboBox.setItems(FXCollections.observableArrayList(SIMPLE_TASK, DETAILED_TASK, DEADLINE_TASK));
-        taskTypeComboBox.setValue(SIMPLE_TASK); // Default to Simple Task
+        taskTypeComboBox.setValue(SIMPLE_TASK);
 
-        // Listener to manage visibility of type-specific fields
         taskTypeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             updateTaskSpecificFieldVisibility(newVal);
         });
-        updateTaskSpecificFieldVisibility(SIMPLE_TASK); // Initial setup
+        updateTaskSpecificFieldVisibility(SIMPLE_TASK);
 
-        // Search field listener
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredTasksList.setPredicate(task -> {
                 if (newValue == null || newValue.isEmpty()) {
-                    return true; // Show all tasks if search field is empty
+                    return true;
                 }
                 String lowerCaseFilter = newValue.toLowerCase();
-                // Search in task description
                 if (task.getDescription().toLowerCase().contains(lowerCaseFilter)) {
                     return true; 
                 }
-                // Optionally, search in details for DetailedTask
+
                 if (task instanceof DetailedTask) {
                     DetailedTask detailedTask = (DetailedTask) task;
                     if (detailedTask.getDetails() != null && detailedTask.getDetails().toLowerCase().contains(lowerCaseFilter)) {
                         return true;
                     }
                 }
-                return false; // Does not match
+                return false;
             });
         });
 
@@ -114,13 +114,10 @@ public class HelloController {
             protected void updateItem(Task task, boolean empty) {
                 super.updateItem(task, empty);
 
-                // Always clear old styles first
                 getStyleClass().removeAll(STYLE_CLASS_TASK_COMPLETED, STYLE_CLASS_TASK_DUE, STYLE_CLASS_TASK_OVERDUE);
-                setText(null); // Clear text first
-                // setGraphic(null); // If you were using graphics
+                setText(null); 
 
                 if (empty || task == null) {
-                    // No text or style for empty cells
                 } else {
                     setText(task.toString());
                     if (task.isCompleted()) {
@@ -133,10 +130,7 @@ public class HelloController {
                         } else {
                             getStyleClass().add(STYLE_CLASS_TASK_DUE);
                         }
-                    } else {
-                        // No specific style class for normal, non-due, non-completed tasks
-                        // The default .list-cell styling from CSS will apply
-                    }
+                    } 
                 }
             }
         });
@@ -146,22 +140,24 @@ public class HelloController {
             setReminderButton.setDisable(!taskSelected);
             markCompleteButton.setDisable(!taskSelected);
             deleteTaskButton.setDisable(!taskSelected);
+            updateTaskButton.setDisable(!taskSelected || (newValue != null && newValue.isCompleted()));
 
             if (taskSelected) {
+                taskInput.setText(newValue.getDescription());
                 reminderDatePicker.setValue(newValue.getReminderDate());
-                // Populate type-specific fields if editing is intended
                 taskTypeComboBox.setValue(newValue.getType()); 
                 if (newValue instanceof DetailedTask) {
                     detailsInput.setText(((DetailedTask) newValue).getDetails());
                 } else {
                     detailsInput.clear();
                 }
-                if (newValue instanceof DeadlineTask && ((DeadlineTask) newValue).getDueTime() != null) {
-                    dueTimeInput.setText(((DeadlineTask) newValue).getDueTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+                if (newValue instanceof DeadlineTask) { 
+                    dueTimeInput.setText(DateTimeUtil.formatTime(((DeadlineTask) newValue).getDueTime()));
                 } else {
                     dueTimeInput.clear();
                 }
             } else {
+                taskInput.clear();
                 reminderDatePicker.setValue(null);
                 taskTypeComboBox.setValue(SIMPLE_TASK);
                 detailsInput.clear();
@@ -169,6 +165,13 @@ public class HelloController {
             }
             updateTaskSpecificFieldVisibility(taskTypeComboBox.getValue());
         });
+
+        masterTasksList.addListener((ListChangeListener<Task>) c -> {
+            updateTaskStatistics();
+        });
+
+
+        updateTaskStatistics(); 
     }
 
     private void updateTaskSpecificFieldVisibility(String taskType) {
@@ -186,55 +189,94 @@ public class HelloController {
         dueTimeInput.setManaged(isDeadline);
     }
 
+    private void updateTaskStatistics() {
+        long total = masterTasksList.size();
+        long completed = masterTasksList.stream().filter(Task::isCompleted).count();
+        long pending = total - completed;
+
+        totalTasksLabel.setText("Total: " + total);
+        completedTasksLabel.setText("Completed: " + completed);
+        pendingTasksLabel.setText("Pending: " + pending);
+    }
+
     @FXML
     protected void handleAddTask() {
         String description = taskInput.getText().trim();
         if (description.isEmpty()) {
-            showAlert("Input Error", "Task description cannot be empty.");
+            AlertUtil.showAlert("Input Error", "Task description cannot be empty.");
+            return;
+        }
+
+        LocalDate reminderForTask = reminderDatePicker.getValue();
+        if (reminderForTask != null && reminderForTask.isBefore(LocalDate.now())) {
+            AlertUtil.showAlert("Input Error", "Reminder date cannot be in the past.");
             return;
         }
 
         String selectedType = taskTypeComboBox.getValue();
         Task newTask = null;
-
         try {
             switch (selectedType) {
                 case SIMPLE_TASK:
                     newTask = new SimpleTask(description);
+                    if (reminderForTask != null) {
+                        newTask.setReminderDate(reminderForTask);
+                    }
                     break;
                 case DETAILED_TASK:
                     String details = detailsInput.getText().trim();
                     newTask = new DetailedTask(description, details);
+                    if (reminderForTask != null) { 
+                        newTask.setReminderDate(reminderForTask);
+                    }
                     break;
                 case DEADLINE_TASK:
-                    LocalDate reminderForDeadline = reminderDatePicker.getValue(); // Deadline tasks should ideally have a date
                     LocalTime dueTime = null;
                     String dueTimeText = dueTimeInput.getText().trim();
-                    if (!dueTimeText.isEmpty()) {
-                        dueTime = LocalTime.parse(dueTimeText, DateTimeFormatter.ofPattern("HH:mm"));
+                    dueTime = DateTimeUtil.parseTime(dueTimeText);
+
+                    if (reminderForTask != null && reminderForTask.isEqual(LocalDate.now()) && 
+                        dueTime != null && dueTime.isBefore(LocalTime.now())) {
+                        AlertUtil.showAlert("Input Error", "Due time for a task due today cannot be in the past.");
+                        return;
                     }
-                    // We decided DeadlineTask constructor handles reminderDate null check with dueTime.
-                    newTask = new DeadlineTask(description, reminderForDeadline, dueTime);
-                    // if (reminderForDeadline == null && dueTime != null) {
-                    //     showAlert("Input Error", "A due time for a Deadline Task requires a reminder date to be set.");
-                    //     return;
-                    // }
+
+                    newTask = new DeadlineTask(description, reminderForTask, dueTime);
                     break;
                 default:
-                    showAlert("Type Error", "Unknown task type selected.");
+                    AlertUtil.showAlert("Type Error", "Unknown task type selected.");
                     return;
             }
+        } catch (InvalidTaskInputException e) {
+            AlertUtil.showAlert("Input Error", e.getMessage());
+            return;
         } catch (DateTimeParseException e) {
-            showAlert("Input Error", "Invalid due time format. Please use HH:mm.");
+            AlertUtil.showAlert("Input Error", "Invalid due time format. Please use HH:mm.");
             return;
         } catch (IllegalArgumentException e) {
-            showAlert("Input Error", e.getMessage());
+            AlertUtil.showAlert("Input Error", "An unexpected input error occurred: " + e.getMessage());
             return;
         }
 
         if (newTask != null) {
             masterTasksList.add(newTask);
             clearInputFields();
+            updateTaskStatistics(); 
+
+            if (newTask instanceof DeadlineTask) {
+                DeadlineTask deadlineTask = (DeadlineTask) newTask;
+                if (deadlineTask.getReminderDate() != null && deadlineTask.getReminderDate().isBefore(LocalDate.now())) {
+                    if (deadlineTask.getDueTime() != null && deadlineTask.getReminderDate().isEqual(LocalDate.now()) && deadlineTask.getDueTime().isBefore(LocalTime.now())) {
+                        NotificationUtil.showTaskNotification("Task Overdue", "Deadline task \"" + deadlineTask.getDescription() + "\" was added already overdue.");
+                    } else if (deadlineTask.getDueTime() == null) { 
+                         NotificationUtil.showTaskNotification("Task Past Reminder", "Deadline task \"" + deadlineTask.getDescription() + "\" was added past its due date.");
+                    }
+                } else if (deadlineTask.getReminderDate() != null && deadlineTask.getReminderDate().isEqual(LocalDate.now()) && deadlineTask.getDueTime() != null && deadlineTask.getDueTime().isBefore(LocalTime.now())) {
+                     NotificationUtil.showTaskNotification("Task Overdue", "Deadline task \"" + deadlineTask.getDescription() + "\" is due today and already past time.");
+                }
+            } else if (newTask.getReminderDate() != null && newTask.getReminderDate().isBefore(LocalDate.now())) {
+                NotificationUtil.showTaskNotification("Task Past Reminder", "Task \"" + newTask.getDescription() + "\" was added with a reminder date in the past.");
+            }
         }
     }
 
@@ -242,8 +284,8 @@ public class HelloController {
         taskInput.clear();
         detailsInput.clear();
         dueTimeInput.clear();
-        // reminderDatePicker.setValue(null); // Keep reminder date for next task if desired, or clear
-        taskTypeComboBox.setValue(SIMPLE_TASK); // Reset to default type
+        reminderDatePicker.setValue(null);
+        taskTypeComboBox.setValue(SIMPLE_TASK);
         updateTaskSpecificFieldVisibility(SIMPLE_TASK);
     }
 
@@ -253,49 +295,38 @@ public class HelloController {
         LocalDate reminderDate = reminderDatePicker.getValue();
 
         if (selectedTask == null) {
-            showAlert("Selection Error", "Please select a task to set a reminder.");
+            AlertUtil.showAlert("Selection Error", "Please select a task to set a reminder.");
             return;
         }
         if (reminderDate == null && !(selectedTask instanceof DeadlineTask && ((DeadlineTask)selectedTask).getDueTime() != null)){
-             showAlert("Input Error", "Please select a date for the reminder.");
+             AlertUtil.showAlert("Input Error", "Please select a date for the reminder.");
             return;
         }
-        // For DeadlineTask, if user is clearing reminder date but due time exists, it might be an issue based on constructor logic.
-        // Current DeadlineTask.setDueTime() checks if reminderDate is null.
-        // Let's ensure that if date is cleared, due time is also cleared for DeadlineTask to avoid inconsistency or prompt user.
         if (selectedTask instanceof DeadlineTask && reminderDate == null && ((DeadlineTask) selectedTask).getDueTime() != null) {
-             // Option 1: Clear due time as well
-            // ((DeadlineTask) selectedTask).setDueTime(null); 
-            // showAlert("Reminder Cleared", "Reminder and associated due time for '" + selectedTask.getDescription() + "' have been cleared.");
-            // Option 2: Prevent clearing date if due time exists, or prompt.
-            showAlert("Input Error", "Cannot clear reminder date for a Deadline Task that has a due time. Clear due time first or set a new date.");
-            reminderDatePicker.setValue(selectedTask.getReminderDate()); // Revert date picker
+            AlertUtil.showAlert("Input Error", "Cannot clear reminder date for a Deadline Task that has a due time. Clear due time first or set a new date.");
+            reminderDatePicker.setValue(selectedTask.getReminderDate());
             return;
         }
 
         selectedTask.setReminderDate(reminderDate);
         
-        // If it's a DeadlineTask and user is setting a date, ensure dueTime input is available or handled
-        if (selectedTask instanceof DeadlineTask) {
-            // If a due time is already set, ensure it's compatible or allow user to update it.
-            // For now, setting the date is enough. The due time is set during task creation or could be edited via a dedicated UI.
-            // If reminderDate is set to null, the DeadlineTask's setDueTime(null) might be implicitly needed if it had one.
-            // However, our check above handles the case of clearing date when dueTime exists.
-        }
-
         refreshListView();
-        showAlert("Reminder Set", "Reminder for \"" + selectedTask.getDescription() + "\" set to " + (reminderDate != null ? reminderDate.toString() : "cleared") + ".");
+        AlertUtil.showAlert("Reminder Set", "Reminder for \"" + selectedTask.getDescription() + "\" set to " + (reminderDate != null ? reminderDate.toString() : "cleared") + ".");
     }
 
     @FXML
     protected void handleMarkComplete() {
         Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
         if (selectedTask != null) {
-            selectedTask.setCompleted(true);
-            refreshListView();
-            showAlert("Task Complete", "\"" + selectedTask.getDescription() + "\" marked as complete.");
+            if (!selectedTask.isCompleted()) { 
+                selectedTask.setCompleted(true);
+                refreshListView();
+                updateTaskStatistics(); 
+                NotificationUtil.showTaskNotification("Task Completed", "\"" + selectedTask.getDescription() + "\" is complete!");
+            }
+            AlertUtil.showAlert("Task Complete", "\"" + selectedTask.getDescription() + "\" marked as complete.");
         } else {
-            showAlert("Selection Error", "Please select a task to mark as complete.");
+            AlertUtil.showAlert("Selection Error", "Please select a task to mark as complete.");
         }
     }
 
@@ -304,24 +335,120 @@ public class HelloController {
         Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
         if (selectedTask != null) {
             masterTasksList.remove(selectedTask);
-            showAlert("Task Deleted", "\"" + selectedTask.getDescription() + "\" has been deleted.");
+            updateTaskStatistics(); 
+            AlertUtil.showAlert("Task Deleted", "\"" + selectedTask.getDescription() + "\" has been deleted.");
         } else {
-            showAlert("Selection Error", "Please select a task to delete.");
+            AlertUtil.showAlert("Selection Error", "Please select a task to delete.");
+        }
+    }
+
+    @FXML
+    protected void handleUpdateTask() {
+        Task selectedTask = taskListView.getSelectionModel().getSelectedItem();
+        if (selectedTask == null) {
+            AlertUtil.showAlert("No Task Selected", "Please select a task to update.");
+            return;
+        }
+
+        if (selectedTask.isCompleted()) {
+            AlertUtil.showAlert("Task Completed", "Completed tasks cannot be updated.");
+            return;
+        }
+
+        String newDescription = taskInput.getText().trim();
+        LocalDate newReminderDate = reminderDatePicker.getValue();
+
+        if (newReminderDate != null && newReminderDate.isBefore(LocalDate.now())) {
+            boolean reminderDateChanged = (selectedTask.getReminderDate() == null && newReminderDate != null) || 
+                                          (selectedTask.getReminderDate() != null && !selectedTask.getReminderDate().equals(newReminderDate));
+            if (reminderDateChanged && newReminderDate.isBefore(LocalDate.now())) {
+                 AlertUtil.showAlert("Input Error", "Reminder date cannot be set to a date in the past.");
+                 return;
+            }
+        }
+
+        String newType = taskTypeComboBox.getValue();
+        String newDetails = detailsInput.getText().trim();
+        String newDueTimeText = dueTimeInput.getText().trim();
+
+        if (newDescription.isEmpty()) {
+            AlertUtil.showAlert("Input Error", "Task description cannot be empty.");
+            return;
+        }
+
+        try {
+            LocalTime newDueTime = DateTimeUtil.parseTime(newDueTimeText);
+
+            if (newType.equals(DEADLINE_TASK)) {
+                if (newReminderDate != null && newReminderDate.isEqual(LocalDate.now()) &&
+                    newDueTime != null && newDueTime.isBefore(LocalTime.now())) {
+                    AlertUtil.showAlert("Input Error", "Due time for a task due today cannot be in the past.");
+                    return;
+                }
+            }
+
+            if (!selectedTask.getType().equals(newType)) {
+           
+                Task newTask;
+                switch (newType) {
+                    case SIMPLE_TASK:
+                        newTask = new SimpleTask(newDescription);
+                        break;
+                    case DETAILED_TASK:
+                        newTask = new DetailedTask(newDescription, newDetails);
+                        break;
+                    case DEADLINE_TASK:
+                        newTask = new DeadlineTask(newDescription, newReminderDate, newDueTime);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid task type: " + newType);
+                }
+        
+                newTask.setCompleted(selectedTask.isCompleted()); 
+                if (!(newTask instanceof DeadlineTask)) { 
+                     if(newReminderDate != null) newTask.setReminderDate(newReminderDate);
+                     else newTask.setReminderDate(selectedTask.getReminderDate());
+                } else if (newReminderDate != null){
+                    newTask.setReminderDate(newReminderDate);
+                }
+             
+
+                masterTasksList.remove(selectedTask);
+                masterTasksList.add(newTask);
+                taskListView.getSelectionModel().select(newTask); 
+            } else {
+                
+                selectedTask.setDescription(newDescription);
+                selectedTask.setReminderDate(newReminderDate); 
+
+                if (selectedTask instanceof DetailedTask) {
+                    ((DetailedTask) selectedTask).setDetails(newDetails);
+                }
+                if (selectedTask instanceof DeadlineTask) {
+                    
+                    if (newReminderDate == null && ((DeadlineTask) selectedTask).getDueTime() != null) {
+                        ((DeadlineTask) selectedTask).setDueTime(null); 
+                        dueTimeInput.clear();
+                        AlertUtil.showAlert("Due Time Cleared", "Reminder date was cleared, so due time was also cleared for the deadline task.");
+                    }
+                    ((DeadlineTask) selectedTask).setDueTime(newDueTime);
+                }
+            }
+
+            refreshListView();
+            updateTaskStatistics();
+            AlertUtil.showAlert("Task Updated", "Task '" + newDescription + "' has been updated.");
+
+        } catch (InvalidTaskInputException e) {
+            AlertUtil.showAlert("Input Error", e.getMessage());
+        } catch (DateTimeParseException e) {
+            AlertUtil.showAlert("Input Error", "Invalid due time format. Please use HH:mm.");
+        } catch (IllegalArgumentException e) {
+            AlertUtil.showAlert("Update Error", "An unexpected error occurred during update: " + e.getMessage());
         }
     }
     
     private void refreshListView() {
         taskListView.refresh();
-        // int selectedIndex = taskListView.getSelectionModel().getSelectedIndex();
-        // taskListView.refresh();
-        // if (selectedIndex != -1) taskListView.getSelectionModel().select(selectedIndex);
-    }
-
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 }

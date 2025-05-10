@@ -15,7 +15,7 @@ public class DetailedTask extends Task {
     }
 
     public void setDetails(String details) {
-        this.details = details;
+        this.details = details != null ? details.trim() : null;
     }
 
     @Override
@@ -23,8 +23,6 @@ public class DetailedTask extends Task {
         return "Detailed";
     }
 
-    // Optionally, override toString() to include details if needed for display
-    // Or rely on a more sophisticated cell factory in the controller
     @Override
     public String toString() {
         return super.toString() + " [Details: " + (details != null && !details.isEmpty() ? details : "N/A") + "]";

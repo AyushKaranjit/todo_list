@@ -1,5 +1,6 @@
 package com.example.todo_list;
 
+import com.example.todo_list.exception.InvalidTaskInputException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -10,9 +11,9 @@ public class DeadlineTask extends Task {
     public DeadlineTask(String description, LocalDate reminderDate, LocalTime dueTime) {
         super(description);
         if (reminderDate == null && dueTime != null) {
-            throw new IllegalArgumentException("Cannot set due time without a reminder date.");
+            throw new InvalidTaskInputException("Cannot set due time without a reminder date.");
         }
-        setReminderDate(reminderDate); // Use setter to associate date
+        setReminderDate(reminderDate);
         this.dueTime = dueTime;
     }
 
@@ -21,8 +22,8 @@ public class DeadlineTask extends Task {
     }
 
     public void setDueTime(LocalTime dueTime) {
-        if (getReminderDate() == null && dueTime != null) {
-             throw new IllegalArgumentException("Cannot set due time without a reminder date. Please set reminder date first.");
+        if (dueTime != null && getReminderDate() == null) {
+            throw new InvalidTaskInputException("Due time cannot be set without a reminder date.");
         }
         this.dueTime = dueTime;
     }

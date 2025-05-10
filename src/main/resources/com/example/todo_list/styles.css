@@ -1,28 +1,25 @@
-/* styles.css for To-Do List Application - Purple Inter Theme */
-
 .root {
-  -fx-font-family: "Inter", "System", "Arial", sans-serif; /* Inter font, with fallbacks */
-  -fx-background-color: #f2eef7; /* Very light purple/lavender background */
+  -fx-font-family: "System", "Arial", sans-serif;
+  -fx-background-color: #f2eef7;
 }
 
 .label {
-  -fx-font-size: 14px; /* Increased */
-  -fx-text-fill: #4a235a; /* Dark purple text */
+  -fx-font-size: 14px;
+  -fx-text-fill: #4a235a;
 }
 
-/* Style for the main title label */
 #mainTitle {
-  -fx-font-size: 32px; /* Increased */
+  -fx-font-size: 32px;
   -fx-font-weight: bold;
-  -fx-text-fill: #512e5f; /* Deep purple */
-  -fx-padding: 10px 0 20px 0; /* Adjusted padding */
+  -fx-text-fill: #512e5f;
+  -fx-padding: 10px 0 20px 0;
 }
 
 .button {
-  -fx-background-color: #8e44ad; /* Primary purple (Wisteria) */
+  -fx-background-color: #8e44ad;
   -fx-text-fill: white;
-  -fx-font-size: 14px; /* Increased */
-  -fx-padding: 10px 20px; /* Increased padding */
+  -fx-font-size: 14px;
+  -fx-padding: 10px 20px;
   -fx-background-radius: 5px;
   -fx-effect: null;
   -fx-border-width: 1px;
@@ -30,24 +27,23 @@
 }
 
 .button:hover {
-  -fx-background-color: #7d3c98; /* Darker purple on hover */
+  -fx-background-color: #7d3c98;
 }
 
 .button:pressed {
-  -fx-background-color: #6c3483; /* Even darker purple when pressed */
+  -fx-background-color: #6c3483;
 }
 
 .button:disabled {
-  -fx-background-color: #dcd0e3; /* Light, desaturated purple for disabled */
+  -fx-background-color: #dcd0e3;
   -fx-text-fill: #907a9b;
   -fx-opacity: 0.7;
 }
 
-/* Specifically style the Add Task button if needed, or use a class */
 #addTaskButton {
-  -fx-font-size: 15px; /* Increased */
+  -fx-font-size: 15px;
   -fx-font-weight: bold;
-  -fx-background-color: #6a1b9a; /* A strong, distinct purple for primary action */
+  -fx-background-color: #6a1b9a;
 }
 
 #addTaskButton:hover {
@@ -62,50 +58,43 @@
 .combo-box-base,
 .date-picker {
   -fx-background-color: #ffffff;
-  -fx-border-color: #c3b1d1; /* Lavender border */
+  -fx-border-color: #c3b1d1;
   -fx-border-width: 1px;
   -fx-border-radius: 5px;
   -fx-background-radius: 5px;
-  -fx-padding: 8px 12px; /* Increased padding */
-  -fx-font-size: 14px; /* Increased */
+  -fx-padding: 8px 12px;
+  -fx-font-size: 14px;
   -fx-prompt-text-fill: #a995b6;
-  -fx-text-fill: #4a235a; /* Dark purple for input text */
+  -fx-text-fill: #4a235a;
 }
 
 .text-field:focused,
 .combo-box-base:focused,
 .date-picker:focused,
 .date-picker > .text-field:focused {
-  -fx-border-color: #8e44ad; /* Purple border on focus */
+  -fx-border-color: #8e44ad;
   -fx-background-color: #ffffff;
-  -fx-effect: dropshadow(
-    gaussian,
-    rgba(142, 68, 173, 0.3),
-    6,
-    0,
-    0,
-    0
-  ); /* Softer purple shadow */
+  -fx-effect: dropshadow(gaussian, rgba(142, 68, 173, 0.3), 6, 0, 0, 0);
 }
 
 .combo-box .arrow,
 .date-picker .arrow {
-  -fx-background-color: #8e44ad; /* Purple arrow */
+  -fx-background-color: #8e44ad;
 }
 
 .list-view {
   -fx-background-color: #ffffff;
-  -fx-border-color: #dcd0e3; /* Light purple border */
+  -fx-border-color: #dcd0e3;
   -fx-border-radius: 5px;
   -fx-effect: dropshadow(two-pass-box, rgba(0, 0, 0, 0.04), 8, 0, 2, 2);
 }
 
 .list-cell {
-  -fx-padding: 12px 15px; /* More padding within cells */
-  -fx-font-size: 15px; /* Increased font for list items */
-  -fx-text-fill: #512e5f; /* Deep purple for list text */
+  -fx-padding: 12px 15px;
+  -fx-font-size: 15px;
+  -fx-text-fill: #512e5f;
   -fx-border-width: 0 0 1px 0;
-  -fx-border-color: #eae4f0; /* Very light purple border */
+  -fx-border-color: #eae4f0;
 }
 
 .list-cell:empty {
@@ -114,48 +103,42 @@
 }
 
 .list-cell:filled:selected {
-  -fx-background-color: #d5aaff; /* Lighter purple for selected item */
-  -fx-text-fill: #311b92; /* Darker purple text for selected item */
+  -fx-background-color: #d5aaff;
+  -fx-text-fill: #311b92;
   -fx-border-color: #c290f0;
 }
 
 .list-cell:filled:hover {
-  -fx-background-color: #f5eefc; /* Very light purple on hover */
+  -fx-background-color: #f5eefc;
 }
 
-/* Task state styles (remove direct -fx-text-fill from here if cell text fill is managed by selection) */
 .task-completed {
-  /* -fx-text-fill: #90A4AE; Let list-cell manage text color on selection */
   -fx-strikethrough: true;
   -fx-opacity: 0.65;
 }
 
-.task-due .label, /* If text is in a Label inside ListCell */
+.task-due .label,
 .task-due {
-  /* -fx-text-fill: #E74C3C; */ /* Let list-cell manage text color on selection, focus on icon/border */
-  /* We can add a colored border or an icon later if needed */
 }
 
 .task-overdue .label,
 .task-overdue {
-  /* -fx-text-fill: #C0392B; */
-  -fx-font-weight: bold; /* Keep bold for overdue */
+  -fx-font-weight: bold;
 }
 
-/* Specific styling for text color within styled cells, considering selection */
 .list-cell:filled:selected .task-completed,
 .list-cell:filled:selected .task-due,
 .list-cell:filled:selected .task-overdue {
-  -fx-text-fill: #311b92; /* Consistent dark purple for text in selected cells */
+  -fx-text-fill: #311b92;
 }
 
 .list-cell .task-completed {
-  -fx-text-fill: #888899; /* Muted grey/purple for completed text */
+  -fx-text-fill: #888899;
 }
 .list-cell .task-due {
-  -fx-text-fill: #c0392b; /* Keep due as a contrasting red, or change to a warning purple/pink */
+  -fx-text-fill: #c0392b;
 }
 .list-cell .task-overdue {
-  -fx-text-fill: #a93226; /* Darker contrasting red */
+  -fx-text-fill: #a93226;
   -fx-font-weight: bold;
 }
