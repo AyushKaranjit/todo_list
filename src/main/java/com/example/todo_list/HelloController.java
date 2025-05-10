@@ -22,7 +22,9 @@ import java.time.format.DateTimeParseException;
 import com.example.todo_list.util.NotificationUtil;
 import com.example.todo_list.util.AlertUtil;
 import com.example.todo_list.util.DateTimeUtil;
+import com.example.todo_list.util.DatabaseManager;
 import com.example.todo_list.exception.InvalidTaskInputException;
+import com.example.todo_list.exception.DataPersistenceException;
 
 // Controller class for the main view of the To-Do List application.
 public class HelloController {
@@ -83,7 +85,14 @@ public class HelloController {
     // after the fxml file has been loaded.
     @FXML
     public void initialize() {
-        masterTasksList = FXCollections.observableArrayList();
+        // Load tasks from database
+        try {
+            masterTasksList = DatabaseManager.loadTasks();
+        } catch (DataPersistenceException e) {
+            AlertUtil.showAlert("Database Error", "Failed to load tasks: " + e.getMessage());
+            masterTasksList = FXCollections.observableArrayList();
+        }
+        
         filteredTasksList = new FilteredList<>(masterTasksList, p -> true);
 
         taskListView.setItems(filteredTasksList);
@@ -181,6 +190,8 @@ public class HelloController {
         // Listener to update task statistics when the master list of tasks changes.
         masterTasksList.addListener((ListChangeListener<Task>) c -> {
             updateTaskStatistics();
+            // Save tasks to database whenever the list changes
+            saveTasks();
         });
 
         updateTaskStatistics(); 
@@ -212,6 +223,15 @@ public class HelloController {
         totalTasksLabel.setText("Total: " + total);
         completedTasksLabel.setText("Completed: " + completed);
         pendingTasksLabel.setText("Pending: " + pending);
+    }
+    
+    // Saves tasks to database
+    private void saveTasks() {
+        try {
+            DatabaseManager.saveTasks(masterTasksList);
+        } catch (DataPersistenceException e) {
+            AlertUtil.showAlert("Database Error", "Failed to save tasks: " + e.getMessage());
+        }
     }
 
     // Handles the action of adding a new task.
@@ -329,6 +349,7 @@ public class HelloController {
         selectedTask.setReminderDate(reminderDate);
         
         refreshListView();
+        saveTasks();
         AlertUtil.showAlert("Reminder Set", "Reminder for \"" + selectedTask.getDescription() + "\" set to " + (reminderDate != null ? reminderDate.toString() : "cleared") + ".");
     }
 
@@ -341,6 +362,7 @@ public class HelloController {
                 selectedTask.setCompleted(true);
                 refreshListView();
                 updateTaskStatistics(); 
+                saveTasks();
                 NotificationUtil.showTaskNotification("Task Completed", "\"" + selectedTask.getDescription() + "\" is complete!");
             }
             AlertUtil.showAlert("Task Complete", "\"" + selectedTask.getDescription() + "\" marked as complete.");
@@ -458,6 +480,7 @@ public class HelloController {
 
             refreshListView();
             updateTaskStatistics();
+            saveTasks();
             AlertUtil.showAlert("Task Updated", "Task '" + newDescription + "' has been updated.");
 
         } catch (InvalidTaskInputException e) {
