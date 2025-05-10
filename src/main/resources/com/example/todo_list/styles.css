@@ -1,22 +1,22 @@
 .root {
   -fx-font-family: "System", "Arial", sans-serif;
-  -fx-background-color: #f2eef7;
+  -fx-background-color: #fdfcdcff;
 }
 
 .label {
   -fx-font-size: 14px;
-  -fx-text-fill: #4a235a;
+  -fx-text-fill: #0081a7ff;
 }
 
 #mainTitle {
   -fx-font-size: 32px;
   -fx-font-weight: bold;
-  -fx-text-fill: #512e5f;
+  -fx-text-fill: #0081a7ff;
   -fx-padding: 10px 0 20px 0;
 }
 
 .button {
-  -fx-background-color: #8e44ad;
+  -fx-background-color: #00afb9ff;
   -fx-text-fill: white;
   -fx-font-size: 14px;
   -fx-padding: 10px 20px;
@@ -27,64 +27,64 @@
 }
 
 .button:hover {
-  -fx-background-color: #7d3c98;
+  -fx-background-color: #0095a0ff;
 }
 
 .button:pressed {
-  -fx-background-color: #6c3483;
+  -fx-background-color: #007a83ff;
 }
 
 .button:disabled {
-  -fx-background-color: #dcd0e3;
-  -fx-text-fill: #907a9b;
+  -fx-background-color: #e0e0c8ff;
+  -fx-text-fill: #aaa99aff;
   -fx-opacity: 0.7;
 }
 
 #addTaskButton {
   -fx-font-size: 15px;
   -fx-font-weight: bold;
-  -fx-background-color: #6a1b9a;
+  -fx-background-color: #0081a7ff;
 }
 
 #addTaskButton:hover {
-  -fx-background-color: #5a168a;
+  -fx-background-color: #006d8eff;
 }
 
 #addTaskButton:pressed {
-  -fx-background-color: #4a148c;
+  -fx-background-color: #005976ff;
 }
 
 .text-field,
 .combo-box-base,
 .date-picker {
   -fx-background-color: #ffffff;
-  -fx-border-color: #c3b1d1;
+  -fx-border-color: #00afb9ff;
   -fx-border-width: 1px;
   -fx-border-radius: 5px;
   -fx-background-radius: 5px;
   -fx-padding: 8px 12px;
   -fx-font-size: 14px;
-  -fx-prompt-text-fill: #a995b6;
-  -fx-text-fill: #4a235a;
+  -fx-prompt-text-fill: #96c5ccff;
+  -fx-text-fill: #0081a7ff;
 }
 
 .text-field:focused,
 .combo-box-base:focused,
 .date-picker:focused,
 .date-picker > .text-field:focused {
-  -fx-border-color: #8e44ad;
+  -fx-border-color: #fed9b7ff;
   -fx-background-color: #ffffff;
-  -fx-effect: dropshadow(gaussian, rgba(142, 68, 173, 0.3), 6, 0, 0, 0);
+  -fx-effect: dropshadow(gaussian, rgba(254, 217, 183, 0.4), 6, 0, 0, 0);
 }
 
 .combo-box .arrow,
 .date-picker .arrow {
-  -fx-background-color: #8e44ad;
+  -fx-background-color: #00afb9ff;
 }
 
 .list-view {
   -fx-background-color: #ffffff;
-  -fx-border-color: #dcd0e3;
+  -fx-border-color: #f5f4d6ff;
   -fx-border-radius: 5px;
   -fx-effect: dropshadow(two-pass-box, rgba(0, 0, 0, 0.04), 8, 0, 2, 2);
 }
@@ -92,9 +92,9 @@
 .list-cell {
   -fx-padding: 12px 15px;
   -fx-font-size: 15px;
-  -fx-text-fill: #512e5f;
+  -fx-text-fill: #0081a7ff;
   -fx-border-width: 0 0 1px 0;
-  -fx-border-color: #eae4f0;
+  -fx-border-color: #fbfae8ff;
 }
 
 .list-cell:empty {
@@ -103,13 +103,13 @@
 }
 
 .list-cell:filled:selected {
-  -fx-background-color: #d5aaff;
-  -fx-text-fill: #311b92;
-  -fx-border-color: #c290f0;
+  -fx-background-color: #fed9b7ff;
+  -fx-text-fill: #0081a7ff;
+  -fx-border-color: #f9c29eff;
 }
 
 .list-cell:filled:hover {
-  -fx-background-color: #f5eefc;
+  -fx-background-color: #fefef0ff;
 }
 
 .task-completed {
@@ -129,16 +129,16 @@
 .list-cell:filled:selected .task-completed,
 .list-cell:filled:selected .task-due,
 .list-cell:filled:selected .task-overdue {
-  -fx-text-fill: #311b92;
+  -fx-text-fill: #0081a7ff;
 }
 
 .list-cell .task-completed {
-  -fx-text-fill: #888899;
+  -fx-text-fill: #aaa99aff;
 }
 .list-cell .task-due {
-  -fx-text-fill: #c0392b;
+  -fx-text-fill: #00afb9ff;
 }
 .list-cell .task-overdue {
-  -fx-text-fill: #a93226;
+  -fx-text-fill: #f07167ff;
   -fx-font-weight: bold;
 }
