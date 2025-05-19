@@ -21,7 +21,7 @@ import javafx.collections.ObservableList;
 
 public class DatabaseManager {
     private static final String DB_DIRECTORY = System.getProperty("user.home") + File.separator + ".todo_list";
-    private static final String DB_URL = "jdbc:h2:" + DB_DIRECTORY + File.separator + "todo_db";
+    private static final String DB_URL = "jdbc:h2:" + DB_DIRECTORY + File.separator + "todo_db;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE";
     private static final String DB_USER = "user";
     private static final String DB_PASSWORD = "password";
     

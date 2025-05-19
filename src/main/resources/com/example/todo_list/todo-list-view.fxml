@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.todo_list.TodoListController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Task Input Section -->
+    <HBox spacing="10">
+        <TextField fx:id="taskInput" promptText="Enter task description" HBox.hgrow="ALWAYS"/>
+        <ComboBox fx:id="taskTypeComboBox" prefWidth="120"/>
+        <Button fx:id="addTaskButton" text="Add Task" onAction="#handleAddTask"/>
+    </HBox>
+
+    <!-- Task Details Section -->
+    <VBox spacing="5">
+        <Label fx:id="detailsLabel" text="Details:" visible="false"/>
+        <TextField fx:id="detailsInput" promptText="Enter task details" visible="false"/>
+        <Label fx:id="dueTimeLabel" text="Due Time (HH:mm):" visible="false"/>
+        <TextField fx:id="dueTimeInput" promptText="Enter due time" visible="false"/>
+        <DatePicker fx:id="reminderDatePicker" promptText="Set reminder date"/>
+    </VBox>
+
+    <!-- Task List Section -->
+    <VBox spacing="5" VBox.vgrow="ALWAYS">
+        <HBox spacing="10">
+            <TextField fx:id="searchField" promptText="Search tasks..." HBox.hgrow="ALWAYS"/>
+            <Button fx:id="setReminderButton" text="Set Reminder" onAction="#handleSetReminder" disable="true"/>
+            <Button fx:id="markCompleteButton" text="Mark Complete" onAction="#handleMarkComplete" disable="true"/>
+            <Button fx:id="deleteTaskButton" text="Delete" onAction="#handleDeleteTask" disable="true"/>
+            <Button fx:id="updateTaskButton" text="Update" onAction="#handleUpdateTask" disable="true"/>
+        </HBox>
+        <ListView fx:id="taskListView" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+    <!-- Task Statistics Section -->
+    <HBox spacing="20">
+        <Label fx:id="totalTasksLabel" text="Total: 0"/>
+        <Label fx:id="completedTasksLabel" text="Completed: 0"/>
+        <Label fx:id="pendingTasksLabel" text="Pending: 0"/>
+    </HBox>
+</VBox> 

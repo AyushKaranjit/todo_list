@@ -4,16 +4,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListCell;
 import javafx.collections.ListChangeListener;
+import javafx.application.Platform;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,10 +23,11 @@ import com.example.todo_list.util.DateTimeUtil;
 import com.example.todo_list.util.DatabaseManager;
 import com.example.todo_list.exception.InvalidTaskInputException;
 import com.example.todo_list.exception.DataPersistenceException;
+import java.util.HashSet;
+import java.util.Set;
 
 // Controller class for the main view of the To-Do List application.
-public class HelloController {
-
+public class TodoListController {
     // FXML UI Elements
     @FXML
     private TextField taskInput;
@@ -80,6 +79,10 @@ public class HelloController {
     private static final String STYLE_CLASS_TASK_COMPLETED = "task-completed";
     private static final String STYLE_CLASS_TASK_DUE = "task-due";
     private static final String STYLE_CLASS_TASK_OVERDUE = "task-overdue";
+
+    private ScheduledExecutorService scheduler;
+    private static final long CHECK_INTERVAL_SECONDS = 60; // Check every minute
+    private Set<String> shownNotifications = new HashSet<>();
 
     // Initializes the controller class. This method is automatically called
     // after the fxml file has been loaded.
@@ -195,6 +198,10 @@ public class HelloController {
         });
 
         updateTaskStatistics(); 
+
+        // Initialize the scheduler for periodic task checks
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(this::checkDueTasks, 0, CHECK_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
 
     // Updates the visibility of task-specific input fields (details, due time)
@@ -496,4 +503,81 @@ public class HelloController {
     private void refreshListView() {
         taskListView.refresh();
     }
-}
+
+    // Method to check for due and overdue tasks
+    private void checkDueTasks() {
+        Platform.runLater(() -> {
+            LocalDate now = LocalDate.now();
+            LocalTime currentTime = LocalTime.now();
+            
+            for (Task task : masterTasksList) {
+                if (!task.isCompleted() && task.getReminderDate() != null) {
+                    String notificationKey = task.getDescription() + "_" + task.getReminderDate();
+                    
+                    if (task instanceof DeadlineTask) {
+                        DeadlineTask deadlineTask = (DeadlineTask) task;
+                        if (deadlineTask.getDueTime() != null) {
+                            // Check if the task is due today
+                            if (task.getReminderDate().isEqual(now)) {
+                                LocalTime dueTime = deadlineTask.getDueTime();
+                                // Check if we're within a minute of the due time
+                                if (Math.abs(currentTime.toSecondOfDay() - dueTime.toSecondOfDay()) <= 60) {
+                                    notificationKey += "_due_time";
+                                    if (!shownNotifications.contains(notificationKey)) {
+                                        NotificationUtil.showTaskNotification(
+                                            "Task Due",
+                                            "Task \"" + task.getDescription() + "\" is due now!"
+                                        );
+                                        shownNotifications.add(notificationKey);
+                                    }
+                                }
+                                // Check if the task is overdue
+                                else if (dueTime.isBefore(currentTime)) {
+                                    notificationKey += "_overdue";
+                                    if (!shownNotifications.contains(notificationKey)) {
+                                        NotificationUtil.showTaskNotification(
+                                            "Task Overdue",
+                                            "Task \"" + task.getDescription() + "\" is overdue!"
+                                        );
+                                        shownNotifications.add(notificationKey);
+                                    }
+                                }
+                            }
+                        }
+                    } else if (task.getReminderDate().isEqual(now)) {
+                        // For non-deadline tasks, notify when the date is reached
+                        notificationKey += "_due";
+                        if (!shownNotifications.contains(notificationKey)) {
+                            NotificationUtil.showTaskNotification(
+                                "Task Due",
+                                "Task \"" + task.getDescription() + "\" is due today!"
+                            );
+                            shownNotifications.add(notificationKey);
+                        }
+                    }
+                }
+            }
+            
+            // Clean up old notifications (older than today)
+            shownNotifications.removeIf(key -> {
+                String[] parts = key.split("_");
+                if (parts.length >= 2) {
+                    try {
+                        LocalDate notificationDate = LocalDate.parse(parts[1]);
+                        return notificationDate.isBefore(now);
+                    } catch (Exception e) {
+                        return true; // Remove invalid entries
+                    }
+                }
+                return true;
+            });
+        });
+    }
+
+    // Add cleanup method to stop the scheduler when the application closes
+    public void cleanup() {
+        if (scheduler != null && !scheduler.isShutdown()) {
+            scheduler.shutdown();
+        }
+    }
+} 
