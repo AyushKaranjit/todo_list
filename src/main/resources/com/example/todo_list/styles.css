@@ -115,30 +115,21 @@
 .task-completed {
   -fx-strikethrough: true;
   -fx-opacity: 0.65;
+  -fx-text-fill: #aaa99aff;
 }
 
-.task-due .label,
 .task-due {
+  -fx-font-weight: bold;
+  -fx-text-fill: #00afb9ff;
 }
 
-.task-overdue .label,
 .task-overdue {
   -fx-font-weight: bold;
+  -fx-text-fill: #f07167ff;
 }
 
 .list-cell:filled:selected .task-completed,
 .list-cell:filled:selected .task-due,
 .list-cell:filled:selected .task-overdue {
   -fx-text-fill: #0081a7ff;
-}
-
-.list-cell .task-completed {
-  -fx-text-fill: #aaa99aff;
-}
-.list-cell .task-due {
-  -fx-text-fill: #00afb9ff;
-}
-.list-cell .task-overdue {
-  -fx-text-fill: #f07167ff;
-  -fx-font-weight: bold;
 }
