@@ -5,6 +5,7 @@ import com.example.todo_list.DetailedTask;
 import com.example.todo_list.SimpleTask;
 import com.example.todo_list.Task;
 import com.example.todo_list.exception.DataPersistenceException;
+import org.h2.tools.Server;
 
 import java.io.File;
 import java.sql.*;
@@ -21,9 +22,10 @@ import javafx.collections.ObservableList;
 
 public class DatabaseManager {
     private static final String DB_DIRECTORY = System.getProperty("user.home") + File.separator + ".todo_list";
-    private static final String DB_URL = "jdbc:h2:" + DB_DIRECTORY + File.separator + "todo_db;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE";
+    private static final String DB_URL = "jdbc:h2:file:" + DB_DIRECTORY + File.separator + "todo_db;DB_CLOSE_DELAY=-1";
     private static final String DB_USER = "user";
     private static final String DB_PASSWORD = "password";
+    private static Server server;
     
     private static final String CREATE_TASKS_TABLE = 
             "CREATE TABLE IF NOT EXISTS tasks (" +
@@ -39,7 +41,6 @@ public class DatabaseManager {
     static {
         // Initialize database on class load
         try {
-            ensureDbDirectoryExists();
             initializeDatabase();
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,26 +48,38 @@ public class DatabaseManager {
         }
     }
     
-    
-    // Ensures the database directory exists.
-    
-    private static void ensureDbDirectoryExists() {
-        File directory = new File(DB_DIRECTORY);
-        if (!directory.exists()) {
-            directory.mkdirs();
+    public static void startH2Console() {
+        try {
+            if (server == null) {
+                server = Server.createWebServer("-webPort", "8082").start();
+                System.out.println("\n=== H2 Database Console ===");
+                System.out.println("URL: http://localhost:8082");
+                System.out.println("JDBC URL: " + DB_URL);
+                System.out.println("Username: " + DB_USER);
+                System.out.println("Password: " + DB_PASSWORD);
+                System.out.println("========================\n");
+                
+                // Add shutdown hook to stop the H2 Console server when the JVM exits
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    if (server != null) {
+                        server.stop();
+                        System.out.println("H2 Console server stopped.");
+                    }
+                }));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Failed to start H2 Console: " + e.getMessage());
         }
     }
     
-    
-    // Initializes the database and creates necessary tables.
-    
-    private static void initializeDatabase() throws SQLException {
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(CREATE_TASKS_TABLE);
+    public static void stopH2Console() {
+        if (server != null) {
+            server.stop();
+            server = null;
+            System.out.println("H2 Console server stopped.");
         }
     }
-    
     
     // Establishes and returns a connection to the database.
     
@@ -183,5 +196,21 @@ public class DatabaseManager {
         }
         
         return tasks;
+    }
+    
+    // Initializes the database and creates necessary tables.
+    private static void initializeDatabase() throws SQLException {
+        // Create database directory if it doesn't exist
+        File dbDir = new File(DB_DIRECTORY);
+        if (!dbDir.exists()) {
+            if (!dbDir.mkdirs()) {
+                throw new SQLException("Failed to create database directory: " + DB_DIRECTORY);
+            }
+        }
+
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(CREATE_TASKS_TABLE);
+        }
     }
 } 

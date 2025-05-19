@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import com.example.todo_list.util.DatabaseManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,6 +20,9 @@ public class TodoListApplication extends Application {
     @Override
     public void start(Stage stage) {
         try {
+            // Start H2 Console
+            DatabaseManager.startH2Console();
+            
             FXMLLoader fxmlLoader = new FXMLLoader(TodoListApplication.class.getResource("/com/example/todo_list/todo-list-view.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 550, 500);
             
@@ -46,6 +50,12 @@ public class TodoListApplication extends Application {
             AlertUtil.showAlert("Application Error", "Fatal Error: " + errorMessage + "\nDetails: " + e.getMessage());
             throw new AppInitializationException(errorMessage, e);
         }
+    }
+
+    @Override
+    public void stop() {
+        // Stop H2 Console when application closes
+        DatabaseManager.stopH2Console();
     }
 
     // Main method to launch the application.
